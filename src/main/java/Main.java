@@ -9,6 +9,11 @@ import java.util.Scanner;
 public class Main {
 
     private static Coins getUserInputChoice(){
+        /*
+        gets user input, valid values are 1 or 2
+        returns user input as double only if valid
+        retries if input is invalid.
+         */
         int userInputChoice;
         Scanner scanner = new Scanner(System.in);
         System.out.println (
@@ -32,6 +37,11 @@ public class Main {
         }
     }
     private static double getUserInputValue(){
+        /*
+        gets user input, valid value is a positive number
+        returns user input as double only if valid
+        retries if input is invalid.
+         */
         double userInputValue;
         Scanner scanner = new Scanner(System.in);
         System.out.println("Please enter an amount to convert: ");
@@ -51,6 +61,11 @@ public class Main {
         }
 
     private static UserFinalChoice getUserInputFinalChoiceValue() {
+        /*
+        gets user input, valid values are y/Y or n/N
+        returns user input as enum only if valid
+        retries if input is invalid.
+         */
         String userInputChoice;
         Scanner scanner = new Scanner(System.in);
         System.out.println ("Do you want to start over? (Y/N)");
@@ -81,6 +96,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         System.out.println("Welcome to currency converter");
 
+//      initial variables
         ArrayList<Coin> coins = new ArrayList<>();
         Coins userInputChoiceValue;
         double userInputValue;
@@ -89,6 +105,7 @@ public class Main {
         double tempResult;
         UserFinalChoice userFinalChoiceValue = UserFinalChoice.Y;
 
+//      logic
         while (userFinalChoiceValue == UserFinalChoice.Y){
              userInputChoiceValue  = getUserInputChoice();
              userInputValue = getUserInputValue();
@@ -101,6 +118,7 @@ public class Main {
 
         }
 
+//      result
         System.out.println("Thanks for using our currency converter");
         StringBuilder textResult = new StringBuilder();
         for (Coin coin: coins
