@@ -1,56 +1,116 @@
-import java.io.InputStream;
-import java.security.spec.ECField;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Main {
 
-    private static double getUserInputValue() {
-        System.out.println("Welcome to currency converter");
-        String userInputValue = "";
-        int userInputChoice = 0;
-        double inputValue = -1;
-        while (true) {
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Please choose an option (1/2): "
-                               + "\n1.Dollars to Shekels"
-                               + "\n2.Shekels to Dollars");
-
+    private static Coins getUserInputChoice(){
+        int userInputChoice;
+        Scanner scanner = new Scanner(System.in);
+        System.out.println (
+                "\n1.Dollars to Shekels" +
+                "\n2.Shekels to Dollars" +
+                "\nPlease choose an option (1/2): ");
+        try {
             userInputChoice = scanner.nextInt();
-            try {
-                if (1 <= userInputChoice && userInputChoice <= 2) {
-                    System.out.print("Please enter an amount to convert: ");
-                } else {
-                    System.out.println("Please choose 1 or 2");
-                  return userInputChoice;
-                 }
-                } catch (InputMismatchException e){
-            }
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid Choice, please try again");
+            return getUserInputChoice();
+        }
+        switch (userInputChoice){
+            case 1:
+                return Coins.ILS;
+            case 2:
+                return  Coins.USD;
+            default:
+                System.out.println("Invalid Choice, please try again");
+                return  getUserInputChoice();
+        }
+    }
+    private static double getUserInputValue(){
+        double userInputValue;
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Please enter an amount to convert: ");
+        try {
+            userInputValue = scanner.nextDouble();
+        } catch (InputMismatchException e) {
+            System.out.println("Invalid Choice, please try again");
+            return getUserInputValue();
+        }
+        if (userInputValue >= 0) {
+            System.out.println("selected choice: " + userInputValue);
+            return userInputValue;
+        }else{
+            System.out.println("Invalid Choice, please try again");
+            return getUserInputValue();
+        }
+        }
 
+    private static UserFinalChoice getUserInputFinalChoiceValue() {
+        String userInputChoice;
+        Scanner scanner = new Scanner(System.in);
+        System.out.println ("Do you want to start over? (Y/N)");
+        try {
+            userInputChoice = scanner.next().toUpperCase();
+        }catch (Exception e){
+            System.out.println("Invalid Choice, please try again");
+            return getUserInputFinalChoiceValue();
+        }
 
+        switch (userInputChoice){
+            case "Y":
+                return UserFinalChoice.Y;
+            case "N":
+                return UserFinalChoice.N;
+            default:
+                System.out.println("Invalid Choice, please try again");
+                return  getUserInputFinalChoiceValue();
 
-            userInputValue = scanner.next();
-            try {
-                if (Double.parseDouble(userInputValue) > 0) {
-                    inputValue = Double.parseDouble(userInputValue);
-                    return inputValue;
-                } else {
-                    System.out.println("Please insert a positive number");
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Don't be a smart ass");
-            } catch (Exception e) {
-                System.out.println("No idea what has just happened, need to debug\nError:" + e);
-            }
         }
     }
 
-    public static void main(String[] args) {
-        ILS ils = new ILS();
-        double inputValue = getUserInputValue();
-        double resultIls = ils.calculate(inputValue);
-        double resultPrintIls = Math.round(resultIls * 100.0) / 100.0;
-        System.out.println("result = " + resultPrintIls);
-    }
 
+
+
+
+
+    public static void main(String[] args) throws IOException {
+        System.out.println("Welcome to currency converter");
+
+        ArrayList<Coin> coins = new ArrayList<>();
+        Coins userInputChoiceValue;
+        double userInputValue;
+        Coin tempCoin;
+        final DecimalFormat df = new DecimalFormat("0.00");
+        double tempResult;
+        UserFinalChoice userFinalChoiceValue = UserFinalChoice.Y;
+
+        while (userFinalChoiceValue == UserFinalChoice.Y){
+             userInputChoiceValue  = getUserInputChoice();
+             userInputValue = getUserInputValue();
+             tempCoin = CoinsFactory.getCoinInstance(userInputChoiceValue);
+            assert tempCoin != null;
+            tempResult = tempCoin.calculate(userInputValue);
+             coins.add(tempCoin);
+             System.out.println("Result: " + df.format(tempResult));
+            userFinalChoiceValue = getUserInputFinalChoiceValue();
+
+        }
+
+        System.out.println("Thanks for using our currency converter");
+        StringBuilder textResult = new StringBuilder();
+        for (Coin coin: coins
+             ) {
+
+            textResult.append(coin.getConversionResult()).append("\n");
+        }
+        System.out.println(textResult);
+        String filePath = ".results.txt";
+        Files.writeString(Paths.get(filePath), textResult.toString());
+        System.out.println("Results are saved in: "+ filePath);
+    }
 }
